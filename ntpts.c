@@ -1,10 +1,12 @@
+#include <ctype.h>
+#include <errno.h>
+#include <langinfo.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
-#include <errno.h>
-#include <locale.h>
-#include <langinfo.h>
+#include <sys/types.h>
+#include <time.h>
 
 #define NTP_OFFSET                         (2208988800UL)
 #define FRAC_PARTS                         (1000000000UL)
@@ -117,10 +119,10 @@ void process(const struct timespec *now)
         printf(F(PFX f "\n"), "NTP" s, ntp_sec, v); \
 } while (0)
 
-    Q("%llu.%09u", "(dec)", now->tv_nsec);
+    Q("%llu.%09lu", "(dec)", now->tv_nsec);
     Q("%#llx.%08llx", "(hex)", ntp_frac);
 
-    printf(F(PFX"%u/%#x\n"),
+    printf(F(PFX"%lld/%#llx\n"),
             "UNIX", now->tv_sec, now->tv_sec);
 
 #define P(x) do {                                               \
