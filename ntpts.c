@@ -115,23 +115,23 @@ void process(const struct timespec *now)
 
 #define PFX "%9s: "
     
-#define Q(f, s, v) do {                              \
-        printf(F(PFX f "\n"), "NTP" s, ntp_sec, v); \
+#define Q(f, s, i, fr) do {                              \
+        printf(F(PFX f "\n"), s, i, fr); \
 } while (0)
 
-    Q("%llu.%09lu", "(dec)", now->tv_nsec);
-    Q("%#llx.%08llx", "(hex)", ntp_frac);
-
-    printf(F(PFX"%lld/%#llx\n"),
-            "UNIX", now->tv_sec, now->tv_sec);
+    Q("%llu.%09lu", "NTP(dec)", ntp_sec, now->tv_nsec);
+    Q("%#llx.%08llx", "NTP(hex)", ntp_sec, ntp_frac);
+    Q("%llu.%09lu", "UNIX(dec)", now->tv_sec, now->tv_nsec);
+    Q("%#llx.%08llx", "UNIX(hex)", now->tv_sec, ntp_frac);
 
 #define P(x) do {                                               \
         tm = x(&now->tv_sec);                                   \
-        printf(F(PFX"%d/%s/%d, %02d:%02d:%02d.%09lu\n"),        \
+        printf(F(PFX"%d/%s/%d, %02d:%02d:%02d.%09lu %s%+ld\n"),     \
             #x,                                                 \
             tm->tm_mday, nl_langinfo(ABMON_1 + tm->tm_mon),     \
             tm->tm_year + 1900, tm->tm_hour, tm->tm_min,        \
-            tm->tm_sec, now->tv_nsec);                          \
+            tm->tm_sec, now->tv_nsec, tm->tm_zone, 		\
+	    -tm->tm_gmtoff/3600);             			\
     } while(0)
 
     P(gmtime);
