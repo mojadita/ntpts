@@ -126,12 +126,11 @@ void process(const struct timespec *now)
 
 #define P(x) do {                                               \
         tm = x(&now->tv_sec);                                   \
-        printf(F(PFX"%d/%s/%d, %02d:%02d:%02d.%09lu %s%+ld\n"),     \
+        printf(F(PFX"%d/%s/%d, %02d:%02d:%02d.%09lu %s\n"),     \
             #x,                                                 \
             tm->tm_mday, nl_langinfo(ABMON_1 + tm->tm_mon),     \
             tm->tm_year + 1900, tm->tm_hour, tm->tm_min,        \
-            tm->tm_sec, now->tv_nsec, tm->tm_zone, 		\
-	    -tm->tm_gmtoff/3600);             			\
+            tm->tm_sec, now->tv_nsec, tm->tm_zone);             \
     } while(0)
 
     P(gmtime);
