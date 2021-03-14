@@ -7,13 +7,14 @@
 
 #include <ctype.h>
 #include <stdint.h>
+#include <errno.h>
+#include <langinfo.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
-#include <errno.h>
-#include <locale.h>
-#include <langinfo.h>
+#include <sys/types.h>
+#include <time.h>
 
 #define NTP_OFFSET                (2208988800UL)
 #define FRAC_PARTS                (1000000000UL)
@@ -139,11 +140,11 @@ void process(const struct timespec *now)
 
 #define P(x) do {                                               \
         tm = x(&now->tv_sec);                                   \
-        printf(F(PFX"%d/%s/%d, %02d:%02d:%02d.%09lu\n"),        \
+        printf(F(PFX"%d/%s/%d, %02d:%02d:%02d.%09lu %s\n"),     \
             #x,                                                 \
             tm->tm_mday, nl_langinfo(ABMON_1 + tm->tm_mon),     \
             tm->tm_year + 1900, tm->tm_hour, tm->tm_min,        \
-            tm->tm_sec, now->tv_nsec);                          \
+            tm->tm_sec, now->tv_nsec, tm->tm_zone);             \
     } while(0)
 
     P(gmtime);
