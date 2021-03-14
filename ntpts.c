@@ -1,3 +1,12 @@
+/* ntpts.c -- program to convert timestamps from NTP to UNIX.
+ * Author: Luis Colorado <luiscoloradourcola@gmail.com>
+ * Date: Sun Dec 11 02:11:17 2016 +0200
+ * Copyright: (C) 2016-2021 Luis Colorado.  All rights reserved.
+ * License: BSD
+ */
+
+#include <ctype.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -6,8 +15,8 @@
 #include <locale.h>
 #include <langinfo.h>
 
-#define NTP_OFFSET                         (2208988800UL)
-#define FRAC_PARTS                         (1000000000UL)
+#define NTP_OFFSET                (2208988800UL)
+#define FRAC_PARTS                (1000000000UL)
 
 #define F(x)        __FILE__":%d:%s: "x,__LINE__,__func__
 
@@ -67,8 +76,8 @@ int main(int argc, char **argv)
             /* fractional part */
             if (*p++ == '.') {
                 int i;
-                u_int64_t quot = 0;
-                u_int64_t div = 1;
+                uint64_t quot = 0;
+                uint64_t div = 1;
                 int top = (base == 2) ? 30 : (base == 8) ? 10 : (base == 10) ? 9 : /* (base == 16) */ 8;
                 for(i = 0; *p && (i < top) && (q = strchr(digits, tolower(*p))); i++) {
                     quot *= base;
@@ -108,20 +117,25 @@ void process(const struct timespec *now)
 {
     struct tm *tm;
 
-    u_int64_t ntp_sec = now->tv_sec + NTP_OFFSET;
-    u_int64_t ntp_frac = ((u_int64_t) now->tv_nsec << 32) / FRAC_PARTS;
+    uint64_t ntp_sec = now->tv_sec + NTP_OFFSET;
+    uint64_t ntp_frac = ((uint64_t) now->tv_nsec << 32) / FRAC_PARTS;
 
 #define PFX "%9s: "
-    
-#define Q(f, s, v) do {                              \
-        printf(F(PFX f "\n"), "NTP" s, ntp_sec, v); \
-} while (0)
 
-    Q("%llu.%09u", "(dec)", now->tv_nsec);
-    Q("%#llx.%08llx", "(hex)", ntp_frac);
+#define Q(f, s, integ, frac) do {              \
+        printf(F(PFX f "\n"), s,               \
+            (unsigned long long) integ,        \
+            (unsigned long) frac);             \
+    } while (0)
 
-    printf(F(PFX"%u/%#x\n"),
-            "UNIX", now->tv_sec, now->tv_sec);
+    Q("%llu.%09lu", "NTP(dec)", ntp_sec, now->tv_nsec);
+    Q("%#llx.%08lx", "NTP(hex)", ntp_sec, ntp_frac);
+    Q("%llu.%09lu", "UNIX(dec)", now->tv_sec, now->tv_nsec);
+    Q("%#llx.%08lx", "UNIX(hex)", now->tv_sec, ntp_frac);
+
+    printf(F(PFX"%lu/%#x\n"), "UNIX",
+            (unsigned long) now->tv_sec,
+            (unsigned) now->tv_sec);
 
 #define P(x) do {                                               \
         tm = x(&now->tv_sec);                                   \
